@@ -15,11 +15,19 @@ app.get('/index.js', (req, res) => {
 
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  socket.join("room1");
+  io.to("room1").emit("chat",`Добро пожаловать! ${socket.client.id}`)
+
   socket.on("hello", (arg) => {
     console.log("arg:", arg);
     socket.emit("newmsg", 'param 1', 2, {sampleObject:'hello world'})
   });
+
+  socket.on("chat", (arg) => {
+    console.log('New chat message:', arg)
+    io.to("room1").emit("chat",arg);
+  })
+
 });
 
 server.listen(3000, () => {

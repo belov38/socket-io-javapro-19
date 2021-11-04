@@ -4,7 +4,16 @@ window.addEventListener('DOMContentLoaded', () => {
   buttonAuth();
   buttonConnectIO();
   buttonTestIO();
+  buttonSendMessage();
 })
+
+function buttonSendMessage() {
+  document.querySelector('#send').addEventListener('click', async () => {
+    const messageText = document.querySelector("#message").value;
+    console.log('Sending message', messageText)
+    window.socket.emit("chat", messageText)
+  })
+}
 
 function buttonAuth() {
   document.querySelector('#auth').addEventListener('click', async () => {
@@ -34,17 +43,24 @@ function buttonAuth() {
 function buttonConnectIO() {
   document.querySelector('#connect').addEventListener('click', () => {
     console.log('connect clicked');
+    const jwt = document.querySelector('#token').value
     window.socket = io("http://localhost:3000", {
       extraHeaders: {
-        'x-auth-token': 'THE_JWT_TOKEN'
+        'x-auth-token': jwt
       },
       transportOptions: {
         polling: {
           extraHeaders: {
-            'x-auth-token': 'THE_JWT_TOKEN'
+            'x-auth-token': jwt
           }
         }
       },
+    })
+    window.socket.on("chat", (arg) => {
+      console.log('New chat message:', arg)
+      const item = document.createElement('li');
+      item.textContent = arg;
+      document.querySelector("#msgs").appendChild(item);
     })
     console.log('socket connection = ', socket);
   })
@@ -60,8 +76,6 @@ function buttonTestIO() {
       console.log(arg2); // "2"
       console.log(arg3); // { 3: '4', 5: ArrayBuffer (1) [ 6 ] }
     });
-
-  })
-}
+})}
 
 
